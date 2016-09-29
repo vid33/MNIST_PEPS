@@ -1,4 +1,4 @@
-function [ rhol ] = calculate_rhol_vert_left( A, B)
+function [ rhol ] = calculate_rhol_left( A, B)
 
     [N, ~] = size(A);
     

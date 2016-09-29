@@ -1,5 +1,7 @@
 clear;
 
+%Attempt to calculate the environment of l_pos for W_Phi
+
 digit_no = 10; %0 to 9
 
 D=2;
@@ -32,9 +34,17 @@ if l_pos(1) < N
         f_MPS_left = applyMPOtoMPS_left(f_MPS_left, MPO_left);
    
         fprintf('At row %i. \n', kk);
-    
+
+        %use the exact contraction up to this bond dimension as starting
+        %initial MPS for approximations when Dmax < D
+        if D^(N-kk+1) == Dmax
+            fprintf('Was here2\n');
+            B = f_MPS_left;
+        end 
+        
         if D^(N-kk+1) > Dmax;
             %approximate f_MPS_left by a lower dimensional MPS B (D = Dmax)
+                        
             if exist('B') == 0
                 [ B ] = generateRandomMPS_left( N, Dmax, d ); %better starting point is previous MPS at Dmax
             end
@@ -76,6 +86,12 @@ if l_pos(1) >1
         f_MPS_left = applyMPOtoMPS_left(f_MPS_left, MPO_left);
    
         fprintf('At row %i. \n', kk);
+        
+        %use the exact contraction up to this bond dimension as starting
+        %initial MPS for approximations when Dmax < D
+        if D^kk == Dmax
+            B = f_MPS_left;
+        end        
     
         if D^kk > Dmax;
             %approximate f_MPS_left by a lower dimensional MPS B (D = Dmax)
@@ -139,8 +155,13 @@ env_tot = Contract({env_up, f_MPS_left{l_pos(2)+1}}, {[1, -3, -4], [1, -2, -1]})
 env_tot = Contract({env_tot, f_MPS_right{l_pos(2)+1}}, {[-1, -2, -3, 1], [1, -5, -4]}); 
 env_tot = Contract({f_MPS_left{l_pos(2)}, env_tot, f_MPS_right{l_pos(2)}}, ...
                     {[1, -2, -1], [1, -3, -4, -5, 2], [2, -7, -6]});
+
                 
 env_tot = Contract({env_tot, env_down}, {[1, -5, -6, -1, -2, -3, 2], [1, -4, 2]}); 
+
+
+
+
 
 
 

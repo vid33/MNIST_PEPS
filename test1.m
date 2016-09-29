@@ -1,5 +1,7 @@
 clear;
 
+%testing a bunch subroutines
+
 digit_no = 10; %0 to 9
 
 D=2;
