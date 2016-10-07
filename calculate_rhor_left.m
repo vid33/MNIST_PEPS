@@ -1,6 +1,4 @@
 function [ rhor ] = calculate_rhor_left( A, B)
-    %This is for vertical MPS; find best way to implement horizontal
-    %without duplicating code too much?
 
     [N, ~] = size(A);
     
