@@ -18,7 +18,7 @@ function [ MPS_out ] = applyMPOtoMPS_left( MPS, MPO)
        
     %MIDDLE 
     for kk=2:N-1
-        MPS_out{kk} = Contract({MPS{kk}, MPO{kk}}, {[-1, 1, -5], [-2, -3, -4, 1]});
+        MPS_out{kk} = Contract({MPS{kk}, MPO{kk}}, {[-1, 1, -4], [-2, -3, -5, 1]});
         MPS_out{kk} = reshape(MPS_out{kk}, size(MPS{kk},1)*size(MPO{kk},1), d, ...
                                             size(MPS{kk},3)*size(MPO{kk},3));
     end

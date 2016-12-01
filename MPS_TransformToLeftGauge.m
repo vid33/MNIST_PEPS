@@ -1,4 +1,4 @@
-function [ A ] = transformToLeftGauge( A )
+function [ A ] = MPS_TransformToLeftGauge( A )
 
     [N, ~] = size(A);
     [~, d] = size(A{1});
@@ -21,7 +21,8 @@ function [ A ] = transformToLeftGauge( A )
             A{kk} = reshape(Q, d, size(Q,2) );
             A{kk} = Contract({A{kk}}, {[-2, -1]});
         elseif kk == N
-            A{kk} = reshape(Q*R, size(Q,1)/d, d); %NB if rightmost R dropped so state normalised.
+            %A{kk} = reshape(Q, size(Q,1)/d, d);
+            A{kk} = reshape(Q*R, size(Q,1)/d, d); %NB if rightmost R dropped state normalised.
             A{kk} = Contract({A{kk}}, {[-2, -1]});
         else
             A{kk} = reshape(Q, size(A{kk-1}, 1), d, ( size(Q,1)*size(Q,2)/(d*size(A{kk-1},1)) ) );

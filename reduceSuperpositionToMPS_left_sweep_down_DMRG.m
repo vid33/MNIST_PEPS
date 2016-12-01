@@ -1,22 +1,57 @@
-function [ B ] = reduceMPSBondDim_left_sweep_down_DMRG( A, B )
+function [ B ] = reduceSuperpositionToMPS_left_sweep_down_DMRG( Phi_lin, B )
+
+    [SAMPLES, Nlin] = size(Phi_lin);
 
     B = transformToLeftGauge(B);
-    [ rhol_A_B ] = calculate_rhol_left(A, B);
     
-    [N, ~] = size(B);
+    rhol_Phi_B = cell(SAMPLES, Nlin+1);
+    rhol_Phi_B_full = cell(1, Nlin+1);
+
+    
     [~, d] = size(B{1});
-
-
-    fprintf('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n');
-    fprintf('The error at position %i in sweep is %d.\n', N+1, stateNormDifference_left(A,B));
     
-    B{N} = Contract({ A{N}, rhol_A_B{N-1}  }, { [-1, 1], [1, -2]});
+    
+    %effective left density matrix for Phi overlap w/ conj(B)
+    for zz=1:SAMPLES
+    
+        rhol_Phi_B{zz, Nlin+1} = 1;
+    
+        rhol_Phi_B{zz, 1} = Contract({Phi_lin{zz, 1}, conj(B{1})}, {[ 1], [-1, 1]});
+    
+        size(rhol_Phi_B{zz,1})
+        for kk=2:Nlin-1
+            kk
+            rhol_Phi_B{zz, kk} = Contract({rhol_Phi_B{zz, kk-1}, Phi_lin{zz, kk}}, {[-2,1], [-1,1] });
+            rhol_Phi_B{zz, kk} = Contract({rhol_Phi_B{zz, kk}, conj(B{kk})}, {[1, 2], [-1, 1, 2]});    
+        end
+        
+        rhol_Phi_B{zz, Nlin} = Contract({rhol_Phi_B{zz, Nlin-1}, Phi_lin{zz, Nlin}}, {[ -2, 1], [-1, 1]});
+        rhol_Phi_B{zz, Nlin} = Contract({rhol_Phi_B{zz, Nlin}, conj(B{Nlin})}, {[1, 2], [1, 2]});
+        
+    end
+    
+    %for kk=1:Nlin
+    %    rhol_Phi_B_full{kk} = rhol_Phi_B{1,kk};
+    %    for zz=2:SAMPLES
+    %        rhol_Phi_B_full{kk} = rhol_Phi_B_full{kk} + rhol_Phi_B{zz, kk} ;
+    %    end
+    %end
+
+  %  fprintf('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n');
+  %  fprintf('The error at position %i in sweep is %d.\n', N+1, stateNormDifference_left(A,B));
+    
+    B{Nlin} = Contract({rhol_Phi_B{1, Nlin-1}, Phi{1, Nlin}}, {[-2], [-1]});
+    for zz=2:SAMPLES
+        B{Nlin} = B{Nlin} + Contract({rhol_Phi_B{zz, Nlin-1}, Phi{zz, Nlin}}, {[-2], [-1]})
+    end
+          
+    B{Nlin} = Contract({ A{Nlin}, rhol_Phi_B{Nlin-1}  }, { [-1, 1], [1, -2]});
 
     fprintf('The error at position %i in sweep is %d.\n', N, stateNormDifference_left(A,B));
 
     %QR stuff%%%%%%%%%%%%%%%%%%%
-    B{N} = Contract({B{N}}, {[-2, -1]});
-    M = reshape(B{N}, size(B{N},1)*size(B{N},2)/d, d); 
+    B{Nlin} = Contract({B{Nlin}}, {[-2, -1]});
+    M = reshape(B{Nlin}, size(B{Nlin},1)*size(B{Nlin},2)/d, d); 
     %fix this, unify into single rq function:
     [m, n] = size(M);
     if m > n
@@ -25,8 +60,8 @@ function [ B ] = reduceMPSBondDim_left_sweep_down_DMRG( A, B )
         [~, Q] = rq(M);
     end
     
-    B{N} = reshape(Q, size(Q,1), d);
-    B{N} = Contract({B{N}}, {[-2, -1]});
+    B{Nlin} = reshape(Q, size(Q,1), d);
+    B{Nlin} = Contract({B{Nlin}}, {[-2, -1]});
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     rhor_A_B = Contract({ A{N}, conj(B{N}) }, { [1, -1], [1, -2] });

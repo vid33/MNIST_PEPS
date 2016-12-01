@@ -1,4 +1,4 @@
-function [ overlap ] = stateOverlap_left_right( A, B )
+function [ overlap ] = MPS_Overlap_left_right( A, B )
 
     %A is a left and B is a right orientatino MPS
 

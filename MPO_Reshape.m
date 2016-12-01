@@ -1,4 +1,4 @@
-function [ Aout ] = reshapeMPO( A, dir1, dir2 )
+function [ Aout ] = MPO_Reshape( A, dir1, dir2 )
 %reshape an MPO in 'dir1' orientation to 'dir2' orientation
 %dir1, dir2 can be 'left', 'right', 'up', 'down'
 
@@ -23,7 +23,7 @@ function [ Aout ] = reshapeMPO( A, dir1, dir2 )
             end
     end
     
-    %implement other possibilities...
+    %implement other transformations...
             
 
 end

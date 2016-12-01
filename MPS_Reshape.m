@@ -1,4 +1,4 @@
-function [ Aout ] = reshapeMPS( A, dir1, dir2 )
+function [ Aout ] = MPS_Reshape( A, dir1, dir2 )
 %reshape an MPS in 'dir1' orientation to 'dir2' orientation
 %dir1, dir2 can be 'left', 'right', 'up', 'down'
 

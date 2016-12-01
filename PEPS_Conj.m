@@ -1,4 +1,4 @@
-function [ PEPS ] = conjPEPS( PEPS )
+function [ PEPS ] = PEPS_Conj( PEPS )
 
     [N1, N2] = size(PEPS);
     

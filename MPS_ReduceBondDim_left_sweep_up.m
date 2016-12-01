@@ -1,4 +1,4 @@
-function [ B ] = reduceMPSBondDim_left_sweep_up( A, B, rhor_B_B, rhor_A_B )
+function [ B ] = MPS_ReduceBondDim_left_sweep_up( A, B, rhor_B_B, rhor_A_B )
 
     %pinv is used everywhere, not optimal.
        

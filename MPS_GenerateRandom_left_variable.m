@@ -1,4 +1,4 @@
-function [ A ] = generateRandomMPS_left( N, Dmax, d )
+function [ A ] = MPS_GenerateRandom_left_variable( N, Dmax, d )
     Dvec = zeros(1, N-1);
     
     A = cell(N,1);
