@@ -64,7 +64,7 @@ function [ B ] = MPS_ReduceBondDim_left_sweep_up_DMRG( A, B )
  
     fprintf('The error at position %i in sweep is %d.\n', N, MPS_NormDifference_left(A,B));
 
-    fprintf('Norm of B at N is %d \n', MPS_Overlap_left_left(B,B));
+    fprintf('Norm of B at N is %d \n', MPS_Overlap(B,B, 'left', 'left'));
     
 end
 

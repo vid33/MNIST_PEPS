@@ -2,7 +2,7 @@ function X=Contract(tensors,contractions)
 
     numcont=max(cell2mat(contractions));
 
-    %fprintf('numcont is %d\n', numcont);
+%    fprintf('numcont is %d\n', numcont);
 
     table=zeros(numcont,2);
     for k=1:length(contractions)

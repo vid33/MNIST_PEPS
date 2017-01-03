@@ -1,7 +1,7 @@
 function [ out ] = MPS_NormDifference_left( A, B )
 
-    out = MPS_Overlap_left_left(A, A) - MPS_Overlap_left_left(A, B) - MPS_Overlap_left_left(B, A) ...
-            + MPS_Overlap_left_left(B, B);
+    out = MPS_Overlap(A, A, 'left', 'left') - MPS_Overlap(A, B, 'left', 'left') - MPS_Overlap(B, A, 'left', 'left') ...
+            + MPS_Overlap(B, B, 'left', 'left');
 
 end
 

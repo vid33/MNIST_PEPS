@@ -7,8 +7,7 @@ function [ B ] = MPS_Truncate( A, D_final )
     [D, d] = size(A{1});
     
     if D_final >= D
-        fprintf('Error. Final bond dimension larger than initial.\n');
-        return;
+        error('Error. Final bond dimension larger than initial.');
     end
         
     B = cell(N, 1);

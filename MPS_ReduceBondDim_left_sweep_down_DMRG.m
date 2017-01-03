@@ -65,7 +65,6 @@ function [ B ] = MPS_ReduceBondDim_left_sweep_down_DMRG( A, B )
     end
     
     B{1} = Contract({rhor_A_B, A{1}}, {[1, -1], [1, -2]});    
-    
 
     %QR stuff%%%%%%%%%%%%%%%%%%%
     B{1} = Contract({B{1}}, {[-2, -1]});
@@ -84,7 +83,7 @@ function [ B ] = MPS_ReduceBondDim_left_sweep_down_DMRG( A, B )
     
     fprintf('The error at position %i in sweep is %d.\n', N, MPS_NormDifference_left(A,B));
     
-    fprintf('Norm of B at N is %d \n', MPS_Overlap_left_left(B,B));
+    fprintf('Norm of B at N is %d \n', MPS_Overlap(B,B, 'left', 'left'));
 
     
 end

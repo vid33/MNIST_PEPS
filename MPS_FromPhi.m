@@ -9,7 +9,11 @@ function [ Phi_lin ] = MPS_FromPhi( Phi )
     for zz = 1:SAMPLE_NO
         for kk=1:N
             for mm = 1:N
-                Phi_lin{N*(kk-1)+ mm, zz} = reshape(Phi{zz}(mm, kk, :), 2, 1);
+                if mod(kk,2) == 1
+                    Phi_lin{N*(kk-1)+ mm, zz} = reshape(Phi{zz}(mm, kk, :), 2, 1);
+                elseif mod(kk,2) == 0
+                    Phi_lin{N*(kk-1)+ mm, zz} = reshape(Phi{zz}(N+1-mm, kk, :), 2, 1);
+                end
             end
         
         end
