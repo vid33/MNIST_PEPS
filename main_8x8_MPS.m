@@ -2,9 +2,9 @@ clear;
 
 %%%%%  8x8 MPS algorithm   %%%%% 
 
-LOAD_STATE = 'new'; %Possibilites 'file', 'new', or...
+LOAD_STATE = 'file'; %Possibilites 'file', 'new', or...
 
-D=4; %D PEPS
+D=2; %D MPS
 d=2;
 N = 8;
 N_MPS = N^2;
@@ -26,10 +26,9 @@ W_Phi_env_left = cell(1, SAMPLE_NO);
 W_Phi_env_right = cell(1, SAMPLE_NO);
 
 if strcmp(LOAD_STATE, 'file')
-    fIn = sprintf('data/MPSdim=%ix%i_sample_no=%i_D=%i_target=%i_latest',...
+    fIn = sprintf('data/MPSdim=%ix%i_sample_no=%i_D=%i_target=%i_latest_random_cpx',...
         N, N, SAMPLE_NO, D, TARGET);
     load(fIn);   
-    
 elseif strcmp(LOAD_STATE, 'new')
    
     fIn = sprintf('data/training_data_N=%i_d=%i_samples=%i', N, d, SAMPLE_NO);
@@ -77,7 +76,7 @@ elseif strcmp(LOAD_STATE, 'new')
 end
 
 %%%%%%%%%%%%%% Learning rate - this will reset whatever is in LOAD_STATE.
-dt = 0.1;
+dt = 0.01;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 fprintf('Initial norm of W_MPS %d \n', MPS_Overlap(W_MPS, W_MPS, 'left', 'left') );
@@ -136,7 +135,7 @@ while 1
         
         W_MPS{pos_mps} = W_MPS{pos_mps} - dt*conj(delta_A);
         MPS_norm = MPS_Overlap(W_MPS, W_MPS, 'left', 'left');
-        W_MPS{pos_mps} = W_MPS{pos_mps}/sqrt(MPS_norm);
+       % W_MPS{pos_mps} = W_MPS{pos_mps}/sqrt(MPS_norm);
         fprintf('MPS norm before update %d\n', MPS_norm);
         
         %Update left environment
@@ -214,7 +213,7 @@ while 1
         
         W_MPS{pos_mps} = W_MPS{pos_mps} - dt*conj(delta_A);
         MPS_norm = MPS_Overlap(W_MPS, W_MPS, 'left', 'left');
-        W_MPS{pos_mps} = W_MPS{pos_mps}/sqrt(MPS_norm);
+        %W_MPS{pos_mps} = W_MPS{pos_mps}/sqrt(MPS_norm);
         fprintf('MPS norm before update %d\n', MPS_norm);
         
         %Update left environment
