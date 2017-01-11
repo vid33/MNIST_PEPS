@@ -25,7 +25,7 @@ Phi_small = Phi(:, 1:D_MPS_init);
 [ Phi_sum_MPS ] = MPS_FromPhiSum( Phi_MPS );
 
 %test: approximate Phi_sum_MPS by a lower dimensional MPS B 
-D_final = 4;
+D_final = 3;
 
 %MPS_init will be the truncation of the sum of Phi states
 MPS_init = MPS_Truncate_SVD(Phi_sum_MPS, D_final);

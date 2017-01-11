@@ -2,25 +2,25 @@ clear;
 
 %%%%%  8x8 brute force algorithm   %%%%% 
 
-LOAD_STATE = 'file_add_random'; %Possibilites 'file', 'new', 'file_add_random' or...
+LOAD_STATE = 'new'; %Possibilites 'file', 'new', 'file_add_random' or...
 
 digit_no = 10; %0 to 9
 
 D=2; %Bond dimension PEPS
 d=2;
 N = 8;
-SAMPLE_NO = 100;
+SAMPLE_NO = 1000;
 
 %The target digit. PEPS will distinguish whether handwriten digit is or is not
 %equal to the target value
 TARGET = 2;
 
 if strcmp(LOAD_STATE, 'file')
-    fIn = sprintf('data/PEPSdim=%ix%i_sample_no=%i_D=%i_target=%i_init_basic_random',...
+    fIn = sprintf('data/PEPSdim=%ix%i_sample_no=%i_D=%i_target=%i_latest_from_conv_mps_not_normalised',...
         N, N, SAMPLE_NO, D, TARGET);
     load(fIn);
 elseif strcmp(LOAD_STATE, 'file_add_random') %load from file, and add noise to PEPS
-    fIn = sprintf('data/PEPSdim=%ix%i_sample_no=%i_D=%i_target=%i_init_basic',...
+    fIn = sprintf('data/PEPSdim=%ix%i_sample_no=%i_D=%i_target=%i_init_basic_from_conv_mps_not_normalised',...
         N, N, SAMPLE_NO, D, TARGET);
     load(fIn);
     
@@ -29,7 +29,7 @@ elseif strcmp(LOAD_STATE, 'file_add_random') %load from file, and add noise to P
     fprintf('Adding noise to PEPS \n');
     delta_PEPS = 0.5; %determines magnitude of random contribution
     [ W_PEPS, W_conjW_PEPS, W_conjW_envMPS_left, W_conjW_envMPS_right ] = ...
-            PEPS_AddNoise(W_PEPS, W_conjW_envMPS_left, W_conjW_envMPS_right, delta_PEPS, 'cpx');
+            PEPS_AddNoise(W_PEPS, W_conjW_envMPS_left, W_conjW_envMPS_right, delta_PEPS, 'real');
     
     fprintf('Recalculating W_Phi_PEPS structure:\n');
     for kk=1:SAMPLE_NO
@@ -50,7 +50,7 @@ elseif strcmp(LOAD_STATE, 'file_add_random') %load from file, and add noise to P
     end
     clearvars images_test;
         
-    fOut = sprintf('data/PEPSdim=%ix%i_sample_no=%i_D=%i_target=%i_init_basic_random_cpx',...
+    fOut = sprintf('data/PEPSdim=%ix%i_sample_no=%i_D=%i_target=%i_init_basic_random_from_conv_mps_not_normalised',...
         N, N, SAMPLE_NO, D, TARGET);
 
     save(fOut);
@@ -75,7 +75,9 @@ elseif strcmp(LOAD_STATE, 'new')  %Start from scratch
     W_Phi_envMPS_right = cell(SAMPLE_NO,N);
 
     images_used = 10; %use sum of this many initial images to construct initial PEPS
-    fIn_MPS_init = sprintf('data/initial_MPS_N=%i_d=%i_images_used=%i_D_reduced=%i', N, d, images_used, D);
+   % fIn_MPS_init = sprintf('data/initial_MPS_N=%i_d=%i_images_used=%i_D_reduced=%i', N, d, images_used, D);
+    fIn_MPS_init = sprintf('data/MPSdim=%ix%i_sample_no=%i_D=%i_target=%i_latest_not_normalised',...
+            N, N, SAMPLE_NO, D, TARGET);
     load(fIn_MPS_init, 'MPS_init');
 
     [ W_PEPS] = embedMPS_IntoPEPS( MPS_init);
@@ -109,14 +111,15 @@ elseif strcmp(LOAD_STATE, 'new')  %Start from scratch
     [ W_Phi_envMPS_left, W_Phi_envMPS_right ] = ...
         PEPS_PrepareEnvironments(W_Phi_PEPS, W_Phi_envMPS_left, W_Phi_envMPS_right, 'left');
 
-    fOut = sprintf('data/PEPSdim=%ix%i_sample_no=%i_D=%i_target=%i_init_basic',...
+    fOut = sprintf('data/PEPSdim=%ix%i_sample_no=%i_D=%i_target=%i_init_from_conv_mps_not_normalised',...
         N, N, SAMPLE_NO, D, TARGET);
 
     save(fOut);   
 end
 
 %%%%%%%%%%%%%% Learning rate - this will reset whatever is in LOAD_STATE.
-dt = 0.1;
+dt = 0.001;
+NORMALISE = false;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -166,7 +169,7 @@ while 1
     [ W_PEPS, W_Phi_PEPS, W_Phi_envMPS_left, W_Phi_envMPS_right, W_conjW_envMPS_left, ...
     W_conjW_envMPS_right, W_Phi_overlap, Cfn_start, Cfn_end] = ...
         PEPS_Sweep_l_to_r(W_PEPS, Phi, W_Phi_PEPS, TARGET, dt, W_Phi_envMPS_left, W_Phi_envMPS_right, ... 
-                W_conjW_envMPS_left, W_conjW_envMPS_right, W_Phi_overlap, training_labels);
+                W_conjW_envMPS_left, W_conjW_envMPS_right, W_Phi_overlap, training_labels, NORMALISE);
     W_conjW_PEPS = PEPS_Overlap( W_PEPS, W_PEPS);
             
     fprintf('Loop finished, total change in cost function is: %d\n', Cfn_start - Cfn_end);
@@ -181,7 +184,7 @@ while 1
     [ W_PEPS, W_Phi_PEPS, W_Phi_envMPS_left, W_Phi_envMPS_right, W_conjW_envMPS_left, ...
     W_conjW_envMPS_right, W_Phi_overlap, Cfn_start, Cfn_end] = ...
         PEPS_Sweep_r_to_l(W_PEPS, Phi, W_Phi_PEPS, TARGET, dt, W_Phi_envMPS_left, W_Phi_envMPS_right, ... 
-                W_conjW_envMPS_left, W_conjW_envMPS_right, W_Phi_overlap, training_labels);
+                W_conjW_envMPS_left, W_conjW_envMPS_right, W_Phi_overlap, training_labels, NORMALISE);
     W_conjW_PEPS = PEPS_Overlap( W_PEPS, W_PEPS);
     
     fprintf('Loop finished, total change in cost function is: %d\n', Cfn_start - Cfn_end);
@@ -209,7 +212,7 @@ while 1
 
         
     if Cfn_start - Cfn_end > 0
-        fOut = sprintf('data/PEPSdim=%ix%i_sample_no=%i_D=%i_target=%i_latest_cpx',...
+        fOut = sprintf('data/PEPSdim=%ix%i_sample_no=%i_D=%i_target=%i_latest_from_conv_mps_not_normalised',...
             N, N, SAMPLE_NO, D, TARGET);
         save(fOut);
     else

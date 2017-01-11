@@ -15,7 +15,7 @@ TARGET = 2;
 
 images_used = 10; %use sum of this many initial images to construct initial PEPS
 
-SAMPLE_NO = 1000;
+SAMPLE_NO = 100;
 
 W_Phi_overlap = zeros(1, SAMPLE_NO);
 %Cost function components (cost fn is sum (C_component)^2 over training set)
@@ -26,10 +26,9 @@ W_Phi_env_left = cell(1, SAMPLE_NO);
 W_Phi_env_right = cell(1, SAMPLE_NO);
 
 if strcmp(LOAD_STATE, 'file')
-    fIn = sprintf('data/MPSdim=%ix%i_sample_no=%i_D=%i_target=%i_latest_not_normalised',...
+    fIn = sprintf('data/MPSdim=%ix%i_sample_no=%i_D=%i_target=%i_latest',...
         N, N, SAMPLE_NO, D, TARGET);
-    load(fIn);  
-    prediction = zeros(1, SAMPLE_NO);
+    load(fIn);   
 elseif strcmp(LOAD_STATE, 'new')
    
     fIn = sprintf('data/training_data_N=%i_d=%i_samples=%i', N, d, SAMPLE_NO);
@@ -70,14 +69,14 @@ elseif strcmp(LOAD_STATE, 'new')
     end
     fprintf('\n');
     
-    fOut = sprintf('data/MPSdim=%ix%i_sample_no=%i_D=%i_target=%i_init_basic_random_cpx',...
+    fOut = sprintf('data/MPSdim=%ix%i_sample_no=%i_D=%i_target=%i_latest',...
         N, N, SAMPLE_NO, D, TARGET);
 
     save(fOut);
 end
 
 %%%%%%%%%%%%%% Learning rate - this will reset whatever is in LOAD_STATE.
-dt = 0.0005;
+dt = 0.001;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 fprintf('Initial norm of W_MPS %d \n', MPS_Overlap(W_MPS, W_MPS, 'left', 'left') );
@@ -139,7 +138,7 @@ while 1
         fprintf('MPS norm before update %d\n', MPS_norm);
         
         %Update left environment
-        parfor kk=1:SAMPLE_NO
+        for kk=1:SAMPLE_NO
             if pos_mps == 1
                 W_Phi_env_left{kk}{pos_mps} = Contract({ W_MPS{pos_mps}, conj(Phi_MPS{pos_mps, kk}) }, {[-1, 1], [-2, 1]});
 
@@ -155,10 +154,10 @@ while 1
     end
     fprintf('Sweep l-r finished, total change in Cfn is: %d\n', Cfn_start - Cfn_end);
     fprintf('Cfn at the end: %d\n', Cfn_end);
-    
+        
     if Cfn_start - Cfn_end < 0
         fprintf('Exiting - Cfn no longer decreasing after sweep.\n');
-       break;
+        break;
     end
     
     % SWEEP r to l
@@ -217,7 +216,7 @@ while 1
         fprintf('MPS norm before update %d\n', MPS_norm);
         
         %Update left environment
-        parfor kk=1:SAMPLE_NO
+        for kk=1:SAMPLE_NO
             if pos_mps == 1
                 W_Phi_env_left{kk}{pos_mps} = Contract({ W_MPS{pos_mps}, conj(Phi_MPS{pos_mps, kk}) }, {[-1, 1], [-2, 1]});
 
@@ -233,25 +232,9 @@ while 1
     end
     fprintf('Sweep r-l finished, total change in Cfn is: %d\n', Cfn_start - Cfn_end);
     fprintf('Cfn at the end: %d\n', Cfn_end);
-    
-    % Prediction on training set
-    parfor kk=1:SAMPLE_NO
-        if real(W_Phi_overlap(kk)) > 0.5
-            prediction(kk) = TARGET;
-        else
-            prediction(kk) = 0;
-        end
-    end
-    prediction_target = prediction(training_labels == TARGET);
-    prediction_non_target = prediction(training_labels ~= TARGET);
-    fprintf('Percentage of target values correctly identified: %d.\n', ...
-            sum(prediction_target == TARGET)/size(prediction_target,2));
-    fprintf('Percentage of non-target values correctly identified: %d.\n', ...
-            sum(prediction_non_target ~= TARGET)/size(prediction_non_target,2));
-    
         
     if Cfn_start - Cfn_end > 0
-        fOut = sprintf('data/MPSdim=%ix%i_sample_no=%i_D=%i_target=%i_latest_not_normalised',...
+        fOut = sprintf('data/MPSdim=%ix%i_sample_no=%i_D=%i_target=%i_latest',...
             N, N, SAMPLE_NO, D, TARGET);
         save(fOut);
     elseif Cfn_start - Cfn_end < 0
